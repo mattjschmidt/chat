@@ -1,0 +1,76 @@
+html
+  head
+    title ShimChat
+    link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet', href='/styling/chat.css')
+    link(rel='stylesheet', href='/node_modules/materialize-css/dist/css/materialize.min.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='/node_modules/materialize-css/dist/js/materialize.min.js')
+  body
+    audio(id='audio' src='/styling/aol.mp3')
+    nav
+      div(class='nav-wrapper')
+        a(href="" class="brand-logo center") ShimChat
+    div(id='container')
+      ul(id='messages')
+      label(id='typingArea')
+      div(id='messageContainer')
+        center
+          form(action='')
+            div(class='row')
+              input(class='input-field' id='message' autocomplete='off' placeholder='Message' onkeydown='currentlyTyping()')
+      div(id='modal1' class='modal')
+        div(class='modal-content')
+          h4 Claim a Username
+          input(class='input-field' placeholder='Username' id='username')
+        div(class='modal-footer')
+          a(class='modal-action modal-close waves-effect waves-green btn-flat' id='username') Ok
+      script.
+        $(function () {
+          $('.modal').modal({
+            dismissible: false
+          });
+          $('#modal1').modal('open');
+          var socket = io();
+          $('form').submit(function(){
+            socket.emit('chat message', $('#username').val(), $('#message').val());
+            $('#message').val('');
+            return false;
+          });
+          socket.on('chat message', function(username, msg){
+            play();
+            $('#messages').append($('<li>').text(username + ": " + msg));
+            window.scrollTo(0, document.body.scrollHeight);
+          });
+          socket.on('typing', function(text){
+            $('#typingArea').text(text);
+            window.scrollTo(0, document.body.scrollHeight);
+          });
+          socket.on('doneTyping', function(text){
+            $('#typingArea').text(text);
+          });
+        });
+        function play() {
+          var audio = document.getElementById("audio");
+          audio.play();
+        }
+        var typing = false;
+        var timeout = undefined;
+        var socket = io();
+
+        function timeoutFunction(){
+          typing = false;
+          socket.emit('doneTyping', $('#username').val());
+        }
+
+        function currentlyTyping(){
+          if(typing == false) {
+            typing = true;
+            socket.emit('typing', $('#username').val());
+            timeout = setTimeout(timeoutFunction, 1500);
+          } else {
+            clearTimeout(timeout);
+            timeout = setTimeout(timeoutFunction, 1500);
+          }
+        }

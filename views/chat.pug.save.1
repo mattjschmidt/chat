@@ -1,0 +1,52 @@
+html
+  head
+    title ShimChat
+    link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet', href='/styling/chat.css')
+    link(rel='stylesheet', href='/node_modules/materialize-css/dist/css/materialize.min.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='/node_modules/materialize-css/dist/js/materialize.min.js')
+  body
+    div(class='container')
+      ul(id="messages")
+      div(class='row')
+        div(class='col s6')
+          fo
+rm(action='')
+            input(id='message' autocomplete='off' placeholder='Message' style='position:absolute; bottom:0px; width:50%;')
+            label(for='message' id='messageLabel' style='position:absolute; bottom:0px; width:50%;') Message
+      div(id='modal1' class='modal')
+        div(class='modal-content')
+          h4 Claim a Username
+          input(class='input-field' placeholder='Username' id='username')
+        div(class='modal-footer')
+          a(class='modal-action modal-close waves-effect waves-green btn-flat' id='username') Ok
+      script.
+        $(function () {
+          $('.modal').modal({
+            dismissible: false
+          });
+          $('#modal1').modal('open');
+          var socket = io();
+          $('form').submit(function(){
+            socket.emit('chat message', $('#username').val(), $('#message').val());
+            $('#message').val('');
+            return false;
+          });
+          socket.on('chat message', function(username, msg){
+            $('#messages').append($('<li>').text(username + ": " + msg));
+            window.scrollTo(0, document.body.scrollHeight);
+          });
+        });
+        function checkValue(el)
+        {
+           if(el.value.length > 0)
+           {
+             document.getElementById('message').disabled = false;
+           }
+           else
+           {
+             document.getElementById('message').disabled = true;
+           }
+        }

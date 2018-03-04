@@ -1,0 +1,13 @@
+{
+  "name": "ShimChat",
+  "version": "0.0.1",
+  "description": "A simple instant chat application",
+  "dependencies": {
+    "express": "^4.15.2",
+    "materialize-css": "^0.100.2",
+    "socket.io": "^2.0.4"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}

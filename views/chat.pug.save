@@ -1,0 +1,46 @@
+html
+  head
+    title ShimChat
+    link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet', href='/styling/chat.css')
+  body
+    ul(id="messages")
+    form(action='')
+      input(id='message' autocomplete='off' placeholder='Message')
+      label(for='message') Message
+    script(src='/socket.io/socket.io.js')
+    script(src='https://code.jquery.com/jquery-1.11.1.js')
+    script.
+      $(document).ready(function(){
+        $('#modal1').modal();
+        $('#modal1').modal('open');
+      });
+      $(function () {
+        var socket = io();
+        $('form').submit(function(){
+          socket.emit('chat message', $('#name').val(), $('#message').val());
+          $('#message').val('');
+          return false;
+        });
+        socket.on('chat message', function(username, msg){
+          $('#messages').append($('<li>').text(username + ": " + msg));
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+      });
+      function checkValue(el)
+      {
+         if(el.value.length > 0)
+         {
+            document.getElementById('message').disabled = false;
+         }
+         else
+         {
+           document.getElementById('message').disabled = true;
+         }
+      }
+    div(id='modal1' class='modal')
+      div(class='modal-content')
+        h4 Claim a Username
+        input(class='input-field' placeholder='Username' id='username')
+      div(class='modal-footer')
+        a(class='modal-action modal-close waves-effect waves-green btn-flat') Agree
