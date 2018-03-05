@@ -1,31 +1,36 @@
 html
   head
-    title ShimChat
+    title Chat
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
     link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
-    link(rel='stylesheet', href='/styling/chat.css')
     link(rel='stylesheet', href='/node_modules/materialize-css/dist/css/materialize.min.css')
+    link(rel='stylesheet', href='/styling/chat.css')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
     script(src='/socket.io/socket.io.js')
     script(src='/node_modules/materialize-css/dist/js/materialize.min.js')
   body
     audio(id='audio' src='/styling/aol.mp3')
-    nav
-      div(class='nav-wrapper')
-        a(href="" class="brand-logo center") ShimChat
+    div(class='navbar-fixed')  
+      nav
+        div(class='nav-wrapper white')
+          a(href="" class="brand-logo center" style='color: black;') Group Chat
     div(id='container')
-      ul(id='messages')
-      label(id='typingArea')
+      div(class='row')
+        ul(id='messages')
+          div(class='floatleft')
+          div(class='floatright')
+        label(id='typingArea')
       div(id='messageContainer')
-        center
-          form(action='')
-            div(class='row')
+        div(class='row')
+          center
+            form(action='')
               input(class='input-field' id='message' autocomplete='off' placeholder='Message' onkeydown='currentlyTyping()')
       div(id='modal1' class='modal')
         div(class='modal-content')
           h4 Claim a Username
           input(class='input-field' placeholder='Username' id='username')
         div(class='modal-footer')
-          a(class='modal-action modal-close waves-effect waves-green btn-flat' id='username') Ok
+          a(class='waves-effect waves-green btn-flat' id='usernameBtn' onclick='confirmUsername()') Ok
       script.
         $(function () {
           $('.modal').modal({
@@ -33,14 +38,22 @@ html
           });
           $('#modal1').modal('open');
           var socket = io();
+          socket.on('response', function(istaken){
+            if(istaken){
+              alert("Taken");
+            }
+            else{
+              $('.modal').modal('close');
+            }
+          });
           $('form').submit(function(){
             socket.emit('chat message', $('#username').val(), $('#message').val());
             $('#message').val('');
             return false;
           });
-          socket.on('chat message', function(username, msg){
+          socket.on('chat message', function(username, msg, time){
             play();
-            $('#messages').append($('<li>').text(username + ": " + msg));
+            $('#messages').append($('<li>').text("(" + time + ") " +username + ": " + msg));
             window.scrollTo(0, document.body.scrollHeight);
           });
           socket.on('typing', function(text){
@@ -73,4 +86,7 @@ html
             clearTimeout(timeout);
             timeout = setTimeout(timeoutFunction, 1500);
           }
+        }
+        function confirmUsername() {
+          socket.emit('confirm username', $('#username').val());
         }

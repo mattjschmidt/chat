@@ -3,6 +3,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
+var uuid = require('uuid');
 const router = express.Router();
 var port = process.env.PORT || 3000;
 
@@ -15,8 +16,29 @@ app.use('/node_modules', express.static(__dirname + '/node_modules'));
 router.get("/", (req, res) => {
     res.render("chat");
 });
+
+var onlineUsers = [];
 var typingUsers = [];
 io.on('connection', function(socket){
+  socket.on('confirm username', function(username){
+    var nameFound = false;
+    for(i = 0; i < onlineUsers.length; i++) {
+      if (username == onlineUsers[i].username){
+        nameFound = true;
+      }
+    }
+    if (nameFound == false) {
+      console.log('Name open.');
+      socket.username = username;
+      socket.id = uuid.v1();
+      onlineUsers.push(socket);
+      console.log(socket.username + " has connected.");
+    }
+    else {
+      console.log('Name Taken.');
+    }
+    io.emit('response', nameFound);
+  });
   socket.on('chat message', function(username, msg){
     function getDateTime() {
       var date = new Date();
@@ -57,6 +79,13 @@ io.on('connection', function(socket){
   socket.on('doneTyping', function(username){
     typingUsers = remove(typingUsers, username);
     io.emit('doneTyping', typingUsers.toString());
+  });
+  socket.on('disconnect', function(){
+    if (socket.id != null && socket.username != null) {
+      var i = onlineUsers.indexOf(socket);
+      onlineUsers.splice(i,1);
+      console.log(socket.username + " has disconnected.")
+    }
   });
 });
 
