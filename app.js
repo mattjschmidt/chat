@@ -3,7 +3,6 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
-var uuid = require('uuid');
 const router = express.Router();
 var port = process.env.PORT || 3000;
 
@@ -28,19 +27,46 @@ io.on('connection', function(socket){
       }
     }
     if (nameFound == false) {
-      console.log('Name open.');
       socket.username = username;
-      socket.id = uuid.v1();
       onlineUsers.push(socket);
       console.log(socket.username + " has connected.");
-    }
-    else {
-      console.log('Name Taken.');
+      io.emit('user connected', username);
     }
     io.emit('response', nameFound);
   });
-  socket.on('chat message', function(username, msg){
-    function getDateTime() {
+  socket.on('chat message', function(chatObj){
+    var time = getDateTime();
+    chatObj.username = socket.username;
+    chatObj.time = time;
+    io.emit('chat message', chatObj);
+    console.log(chatObj.username + ": " + chatObj.message + " (" + chatObj.time + ")")
+  });
+  socket.on('typing', function(){
+    typingUsers.push(socket.username);
+    if(typingUsers.length < 2){
+      io.emit('typing', typingUsers.toString() + ' is typing...');
+    }
+    else{
+      io.emit('typing', typingUsers.toString() + ' are typing...');
+    }
+  });
+  function remove(array, element) {
+    return array.filter(e => e !== element);
+  }
+  socket.on('done typing', function(){
+    typingUsers = remove(typingUsers, socket.username);
+    io.emit('done typing', typingUsers.toString());
+  });
+  socket.on('disconnect', function(){
+    if (socket.username != null) {
+      var i = onlineUsers.indexOf(socket);
+      onlineUsers.splice(i,1);
+      console.log(socket.username + " has disconnected.")
+    }
+  });
+});
+
+function getDateTime() {
       var date = new Date();
       var hour = date.getHours();
       hour = (hour < 10 ? "0" : "") + hour;
@@ -60,34 +86,7 @@ io.on('connection', function(socket){
       day = (day < 10 ? "0" : "") + day;
 
       return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
-   }
-    io.emit('chat message', username, msg, getDateTime());
-    console.log(username + ": " + msg + " (" + getDateTime() + ")")
-  });
-  socket.on('typing', function(username){
-    typingUsers.push(username);
-    if(typingUsers.length < 2){
-      io.emit('typing', typingUsers.toString() + ' is typing...');
-    }
-    else{
-      io.emit('typing', typingUsers.toString() + ' are typing...');
-    }
-  });
-  function remove(array, element) {
-    return array.filter(e => e !== element);
-  }
-  socket.on('doneTyping', function(username){
-    typingUsers = remove(typingUsers, username);
-    io.emit('doneTyping', typingUsers.toString());
-  });
-  socket.on('disconnect', function(){
-    if (socket.id != null && socket.username != null) {
-      var i = onlineUsers.indexOf(socket);
-      onlineUsers.splice(i,1);
-      console.log(socket.username + " has disconnected.")
-    }
-  });
-});
+}
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
