@@ -30,7 +30,7 @@ io.on('connection', function(socket){
       socket.username = username;
       onlineUsers.push(socket);
       console.log(socket.username + " has connected.");
-      io.emit('user connected', username);
+      io.emit('user connected', socket.username);
     }
     io.emit('response', nameFound);
   });
@@ -62,6 +62,7 @@ io.on('connection', function(socket){
       var i = onlineUsers.indexOf(socket);
       onlineUsers.splice(i,1);
       console.log(socket.username + " has disconnected.")
+      io.emit('user disconnected', socket.username)
     }
   });
 });

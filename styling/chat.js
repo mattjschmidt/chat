@@ -25,14 +25,17 @@ $(function () {
     window.scrollTo(0, document.body.scrollHeight);
   });
   socket.on('typing', function(usersTyping){
-    $('#typingArea').text(usersTyping);
+    document.getElementById('typingArea').style.display='block';
     window.scrollTo(0, document.body.scrollHeight);
   });
   socket.on('done typing', function(usersTyping){
-    $('#typingArea').text(usersTyping);
+    document.getElementById('typingArea').style.display='none';
   });
   socket.on('user connected', function(username){
     $('#messages').append($('<li style="text-align: center;">').text(username + " has joined the chat."));
+  });
+  socket.on('user disconnected', function(username){
+    $('#messages').append($('<li style="text-align: center;">').text(username + " has left."));
   });
 });
 
