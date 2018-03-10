@@ -1,4 +1,5 @@
 var socket = io();
+var username = "";
 $(function () {
   $('#usernameModal').modal({
     dismissible: false
@@ -15,24 +16,30 @@ $(function () {
   $('form').submit(function(){
     var messageField = document.getElementById('message').value;
     var chatObj = {message: messageField};
+    $('#messages').append($('<li class="sent">').text("(" + chatObj.time + ") " + username + ": " + chatObj.message));
     socket.emit('chat message', chatObj);
     $('#message').val('');
     return false;
   });
   socket.on('chat message', function(chatObj){
-    play();
-    $('#messages').append($('<li style="display: inline-block; padding: 10px; border-radius: 20px; margin-left: 10px; margin-top: 10px; background-color: #E4E3E9; word-wrap: break-word; max-width: 70%; width: auto;">').text("(" + chatObj.time + ") " + chatObj.username + ": " + chatObj.message));
-    window.scrollTo(0, document.body.scrollHeight);
+    if(chatObj.id != socket.id){
+      play();
+      $('#messages').append($('<li class="recieved">').text("(" + chatObj.time + ") " + chatObj.username + ": " + chatObj.message));
+      window.scrollTo(0, document.body.scrollHeight);
+    }
   });
   socket.on('typing', function(usersTyping){
-    document.getElementById('typingArea').style.display='block';
-    window.scrollTo(0, document.body.scrollHeight);
+    if(!(usersTyping.length == 1 && usersTyping[0] == username)){
+      document.getElementById('typingArea').style.display='block';
+      window.scrollTo(0, document.body.scrollHeight);
+    }
   });
   socket.on('done typing', function(usersTyping){
     document.getElementById('typingArea').style.display='none';
   });
-  socket.on('user connected', function(username){
-    $('#messages').append($('<li style="text-align: center;">').text(username + " has joined the chat."));
+  socket.on('user connected', function(user){
+    username = user;
+    $('#messages').append($('<li style="text-align: center;">').text(user + " has joined the chat."));
   });
   socket.on('user disconnected', function(username){
     $('#messages').append($('<li style="text-align: center;">').text(username + " has left."));

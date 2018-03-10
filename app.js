@@ -38,16 +38,17 @@ io.on('connection', function(socket){
     var time = getDateTime();
     chatObj.username = socket.username;
     chatObj.time = time;
+    chatObj.id = socket.id;
     io.emit('chat message', chatObj);
     console.log(chatObj.username + ": " + chatObj.message + " (" + chatObj.time + ")")
   });
   socket.on('typing', function(){
     typingUsers.push(socket.username);
     if(typingUsers.length < 2){
-      io.emit('typing', typingUsers.toString() + ' is typing...');
+      io.emit('typing', typingUsers);
     }
     else{
-      io.emit('typing', typingUsers.toString() + ' are typing...');
+      io.emit('typing', typingUsers);
     }
   });
   function remove(array, element) {
@@ -55,7 +56,7 @@ io.on('connection', function(socket){
   }
   socket.on('done typing', function(){
     typingUsers = remove(typingUsers, socket.username);
-    io.emit('done typing', typingUsers.toString());
+    io.emit('done typing', typingUsers);
   });
   socket.on('disconnect', function(){
     if (socket.username != null) {
