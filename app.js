@@ -32,7 +32,7 @@ io.on('connection', function(socket){
       console.log(socket.username + " has connected.");
       io.emit('user connected', socket.username);
     }
-    io.emit('response', nameFound);
+    socket.emit('response', nameFound);
   });
   socket.on('chat message', function(chatObj){
     var time = getDateTime();
@@ -40,16 +40,11 @@ io.on('connection', function(socket){
     chatObj.time = time;
     chatObj.id = socket.id;
     io.emit('chat message', chatObj);
-    console.log(chatObj.username + ": " + chatObj.message + " (" + chatObj.time + ")")
+    console.log("(" + chatObj.time + ") " + chatObj.username + ": " + chatObj.message)
   });
   socket.on('typing', function(){
     typingUsers.push(socket.username);
-    if(typingUsers.length < 2){
-      io.emit('typing', typingUsers);
-    }
-    else{
-      io.emit('typing', typingUsers);
-    }
+    socket.broadcast.emit('typing', typingUsers);
   });
   function remove(array, element) {
     return array.filter(e => e !== element);
