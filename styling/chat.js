@@ -50,6 +50,19 @@ $(function () {
 
       usernameDiv.appendChild(usernameField);
 
+      if (chatObj.message.includes("https://www.youtube.com/watch?v=")) {
+        message.innerHTML = "";
+        message.style = 'position:relative; padding-bottom:56.25%; padding-top:30px; height:0; overflow:hidden;';
+        
+        var youtubeIframe = document.createElement('iframe');
+        youtubeIframe.src = "https://www.youtube.com/embed/" + chatObj.message.substring(chatObj.message.indexOf('=')+1);
+        youtubeIframe.style = 'border-radius: 20px; width: 560px; height: 315px;';
+        youtubeIframe.frameBorder = 0;
+        youtubeIframe.allowFullscreen = true;
+        youtubeIframe.allow = 'encrypted-media';
+        message.appendChild(youtubeIframe);
+      }
+
       window.scrollTo(0, document.body.scrollHeight);
     }
     else { //Message sent
@@ -63,6 +76,22 @@ $(function () {
       message.innerHTML = chatObj.message;
 
       sent.appendChild(message);
+      if (chatObj.message.includes("https://www.youtube.com/watch?v=")) {
+        message.innerHTML = "";
+
+        var div = document.createElement('div');
+        div.className = 'inner';
+        div.style = 'margin: 0px auto; width: 10%; min-width: 100px; min-height: 50px;' ;
+        message.appendChild(div);
+        
+        var youtubeIframe = document.createElement('iframe');
+        youtubeIframe.src = "https://www.youtube.com/embed/" + chatObj.message.substring(chatObj.message.indexOf('=')+1);
+        youtubeIframe.style = 'border-radius: 20px;';
+        youtubeIframe.frameBorder = 0;
+        youtubeIframe.allowFullscreen = true;
+        youtubeIframe.allow = 'encrypted-media';
+        div.appendChild(youtubeIframe);
+      }
       window.scrollTo(0, document.body.scrollHeight);
     }
   });

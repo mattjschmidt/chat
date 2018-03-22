@@ -30,6 +30,7 @@ body{
 	width: 55%;
 	margin-right: 10px;
 	margin-left: 10px;
+	margin-top: 10px;
 	border-radius: 20px;
 	padding: 10px;
 	background: white;
@@ -85,6 +86,21 @@ body{
     max-width: 75%;
 	float: right;
 }
+  
+.sentMessage > .inner {
+	position: relative;
+	padding-bottom: 75%;
+	height: 0px;
+}
+  
+.sentMessage iframe {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
 #typingArea {
 	overflow: hidden; 
 	padding: 10px; 
