@@ -40,7 +40,7 @@ io.on('connection', function(socket){
     chatObj.time = time;
     chatObj.id = socket.id;
     io.emit('chat message', chatObj);
-    console.log("(" + chatObj.time + ") " + chatObj.username + ": " + chatObj.message)
+    console.log("(" + chatObj.time.string + ") " + chatObj.username + ": " + chatObj.message)
   });
   socket.on('typing', function(){
     typingUsers.push(socket.username);
@@ -64,6 +64,7 @@ io.on('connection', function(socket){
 });
 
 function getDateTime() {
+      var dateTime = new Object();
       var date = new Date();
       var hour = date.getHours();
       hour = (hour < 10 ? "0" : "") + hour;
@@ -82,7 +83,16 @@ function getDateTime() {
       var day  = date.getDate();
       day = (day < 10 ? "0" : "") + day;
 
-      return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
+
+      dateTime.year = year;
+      dateTime.month = month;
+      dateTime.day = day;
+      dateTime.dayOfWeek = new Date().toLocaleString('en-us', {  weekday: 'long' });
+      dateTime.hour = hour;
+      dateTime.min = min;
+      dateTime.sec = sec;
+      dateTime.string = year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
+      return dateTime;
 }
 
 http.listen(port, function(){

@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "^4.15.2",
     "materialize-css": "^0.100.2",
+    "onesignal-emoji-picker": "^1.0.0",
     "pug": "^2.0.0-rc.4",
     "socket.io": "^2.0.4",
     "uuid": "^3.2.1"

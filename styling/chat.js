@@ -14,22 +14,28 @@ $(function () {
     }
   });
   $('form').submit(function(){
-    var messageField = document.getElementById('message').value;
-    var chatObj = {message: $('#message').val()};
-    socket.emit('chat message', chatObj);
-    $('#message').val('');
-    return false;
+    if ($('#message').val() != '') {
+      var messageField = document.getElementById('message').value;
+      var chatObj = {message: $('#message').val()};
+      socket.emit('chat message', chatObj);
+      $('#message').val('');
+      return false;
+    }
+    else {
+      return false;
+    }
   });
   socket.on('chat message', function(chatObj){
     if (chatObj.id != socket.id){ //Message received
       play();
 
-      if($('#messages')[0].lastChild.lastChild.textContent == chatObj.username) {
+      var lastMessageUsernameText = $('#messages')[0].lastChild.lastChild.textContent;
+      if(lastMessageUsernameText.substring(0, lastMessageUsernameText.indexOf(" •")) == chatObj.username) {
         $('#messages')[0].lastChild.lastChild.style = 'display: none;';
       }
 
       var received = document.createElement('div');
-      received.id = chatObj.id + chatObj.time + 'received';
+      received.id = chatObj.id + chatObj.time.string + 'received';
       received.className = 'receivedDiv';
       $('#messages')[0].appendChild(received);
 
@@ -41,33 +47,27 @@ $(function () {
 
       var usernameDiv = document.createElement('div');
       usernameDiv.className = 'usernameDiv';
-      usernameDiv.id = chatObj.id + chatObj.time + 'usernameAndDate';
+      usernameDiv.id = chatObj.id + chatObj.time.string + 'usernameAndDate';
       received.appendChild(usernameDiv);
 
       var usernameField = document.createElement('div');
       usernameField.className = 'usernameAndDate';
-      usernameField.innerHTML = chatObj.username;
+      if (chatObj.time.hour > 12) {
+        chatObj.time.hour = chatObj.time.hour - 12;
+        chatObj.time.hourSuffix = "PM";
+      }
+      else {
+        chatObj.time.hourSuffix = "AM";
+      }
+      usernameField.innerHTML = chatObj.username + " • " + chatObj.time.dayOfWeek.substring(0,3) + " " + chatObj.time.hour + ":" + chatObj.time.min + " " + chatObj.time.hourSuffix;
 
       usernameDiv.appendChild(usernameField);
-
-      if (chatObj.message.includes("https://www.youtube.com/watch?v=")) {
-        message.innerHTML = "";
-        message.style = 'position:relative; padding-bottom:56.25%; padding-top:30px; height:0; overflow:hidden;';
-        
-        var youtubeIframe = document.createElement('iframe');
-        youtubeIframe.src = "https://www.youtube.com/embed/" + chatObj.message.substring(chatObj.message.indexOf('=')+1);
-        youtubeIframe.style = 'border-radius: 20px; width: 560px; height: 315px;';
-        youtubeIframe.frameBorder = 0;
-        youtubeIframe.allowFullscreen = true;
-        youtubeIframe.allow = 'encrypted-media';
-        message.appendChild(youtubeIframe);
-      }
 
       window.scrollTo(0, document.body.scrollHeight);
     }
     else { //Message sent
       var sent = document.createElement('div');
-      sent.id = chatObj.id + chatObj.time + 'sent';
+      sent.id = chatObj.id + chatObj.time.string + 'sent';
       sent.className = 'sentDiv';
       $('#messages')[0].appendChild(sent);
 
@@ -76,22 +76,7 @@ $(function () {
       message.innerHTML = chatObj.message;
 
       sent.appendChild(message);
-      if (chatObj.message.includes("https://www.youtube.com/watch?v=")) {
-        message.innerHTML = "";
 
-        var div = document.createElement('div');
-        div.className = 'inner';
-        div.style = 'margin: 0px auto; width: 10%; min-width: 100px; min-height: 50px;' ;
-        message.appendChild(div);
-        
-        var youtubeIframe = document.createElement('iframe');
-        youtubeIframe.src = "https://www.youtube.com/embed/" + chatObj.message.substring(chatObj.message.indexOf('=')+1);
-        youtubeIframe.style = 'border-radius: 20px;';
-        youtubeIframe.frameBorder = 0;
-        youtubeIframe.allowFullscreen = true;
-        youtubeIframe.allow = 'encrypted-media';
-        div.appendChild(youtubeIframe);
-      }
       window.scrollTo(0, document.body.scrollHeight);
     }
   });
